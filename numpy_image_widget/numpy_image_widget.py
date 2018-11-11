@@ -70,7 +70,7 @@ class NumpyImage(ipywidgets.Image):
 
     @property
     def width_display(self):
-        """Displayed image width
+        """Image display width
         """
         return self._width_display
 
@@ -80,7 +80,7 @@ class NumpyImage(ipywidgets.Image):
 
     @property
     def height_display(self):
-        """Displayed image height
+        """Image display height
         """
         return self._height_display
 
