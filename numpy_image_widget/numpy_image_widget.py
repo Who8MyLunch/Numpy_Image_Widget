@@ -9,27 +9,30 @@ import image_attendant as ia
 class NumpyImage(ipywidgets.Image):
     """Easy-to-use image widget with numpy data array access.
     """
-    def __init__(self, value=None, data=None, format='jpeg', quality=85, width_max=2000, *args, **kwargs):
+    def __init__(self, data=None, value=b'', url=None, format='jpeg',
+                 quality=85, width_max=1000, auto_size=True,
+                 *args, **kwargs):
         """Create new image widget instance
         """
         super().__init__(*args, **kwargs)
         self.quality = quality
-        self.format = format
-        self._data = None
 
+        self._data = None
         self._width_data = None
         self._height_data = None
         self._width_display = None
         self._height_display = None
         self.width_max = width_max
+        self.auto_size = auto_size
 
-        if data is not None:
-            if value is not None:
-                raise ValueError('Must provide `value` or `data`, not both')
-            self.data = data
+        if url:
+            value, format = ia.download(url)
 
-        if value is not None:
+        if value:
             self.value = value
+
+        self.format = format
+        self.data = data
 
     @property
     def data(self):
@@ -54,7 +57,9 @@ class NumpyImage(ipywidgets.Image):
         fmt, W, H = ia.utility.get_image_size(self.value)
         self.format = fmt
         self._width_data, self._height_data = W, H
-        self._set_width_height_display(W, H)
+
+        if self.auto_size:
+            self._set_width_height_display(W, H)
 
     @property
     def width_data(self):
