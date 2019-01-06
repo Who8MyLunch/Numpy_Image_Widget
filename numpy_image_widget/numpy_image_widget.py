@@ -1,8 +1,12 @@
 
 import traitlets
+import IPython
 import numpy as np
 import ipywidgets
+import ipyevents
 import image_attendant as ia
+
+from . import monotext_widget
 
 
 
@@ -10,12 +14,20 @@ class NumpyImage(ipywidgets.Image):
     """Easy-to-use image widget with numpy data array access.
     """
     def __init__(self, data=None, value=b'', url=None, format='jpeg',
-                 quality=85, width_max=1000, auto_size=True,
-                 *args, **kwargs):
+                 compound=False,
+                 quality=85, width_max=1000, auto_size=True):
         """Create new image widget instance
+
+        Provide one of the following as input:
+        data  - numpy array of image data.
+        value - bytes representing compressed image (e.g. png, jpeg).  Must also provide format.
+        url   - link to remote image.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.quality = quality
+
+        self.compound = compound
+        self._wid_label = None
 
         self._data = None
         self._width_data = None
@@ -39,6 +51,7 @@ class NumpyImage(ipywidgets.Image):
         """Image data as numpy array
         """
         if self._data is None:
+            # Extract numpy array from compressed byte string
             self._data = ia.decompress(self.value)
 
         return self._data
@@ -51,8 +64,14 @@ class NumpyImage(ipywidgets.Image):
         self._data = np.asarray(new_data)
         self.value = ia.compress(self._data, self.format, quality=self.quality)
 
+    @property
+    def shape(self):
+        return self._height_data, self._width_data
+
     @traitlets.observe('value')
     def _value_changed(self, change):
+        """Event handler for changes in `value` property
+        """
         self._data = None
         fmt, W, H = ia.utility.get_image_size(self.value)
         self.format = fmt
@@ -102,7 +121,7 @@ class NumpyImage(ipywidgets.Image):
         elif not W:
             W = H/self.height_data*self.width_data
         else:
-            # Both H and W are defined
+            # Both H and W are defined, nothing to do
             pass
 
         self._width_display = int(W)
@@ -114,3 +133,56 @@ class NumpyImage(ipywidgets.Image):
 
         self.width = '{:d}pt'.format(self._width_display)
         self.height = '{:d}pt'.format(self._height_display)
+
+    def _ipython_display_(self):
+        super()._ipython_display_()
+
+        if self.compound:
+            if not self._wid_label:
+                self._wid_lab = setup_annotation(self)
+
+            self._wid_lab._ipython_display_()
+
+
+
+
+def number_of_digits(x):
+    """Return number of digits to the left of the decimal point
+    """
+    return int(np.floor(np.log10(x))) + 1
+
+
+
+def setup_annotation(wid_niw):
+    """Define annotation label widget
+    """
+    wid_lab = monotext_widget.MonoText(text=' ', font_size=12)
+    wid_lab.layout.width = width='{}px'.format(wid_niw.width_data)
+
+    tpl = '{{:{:d}d}}, {{:{:d}d}}, {{}}'.format(number_of_digits(wid_niw.height_data),
+                                                number_of_digits(wid_niw.width_data))
+
+    # Event handler(s)
+    def handle_mousemove(ev):
+        if ev['type'] == 'mousemove':
+
+            x, y = ev['arrayX'], ev['arrayY']
+            z = wid_niw.data[y, x]
+            wid_lab.text = tpl.format(x, y, z)
+
+    wid_ev = ipyevents.Event(source=wid_niw,
+                             watched_events=['mousemove'])    # 'click',
+
+    wid_ev.on_dom_event(handle_mousemove)
+
+    wid_ev_no_default = ipyevents.Event(source=wid_niw,
+                                        watched_events=['dragstart', 'contextmenu'],
+                                        prevent_default_action=True)
+
+    return wid_lab
+
+
+# def disp():
+#     IPython.display.display(wid_niw)
+#     IPython.display.display(wid_lab)
+
