@@ -145,14 +145,6 @@ class NumpyImage(ipywidgets.Image):
 
 
 
-
-def number_of_digits(x):
-    """Return number of digits to the left of the decimal point
-    """
-    return int(np.floor(np.log10(x))) + 1
-
-
-
 def setup_annotation(wid_niw):
     """Define annotation label widget
     """
@@ -182,7 +174,8 @@ def setup_annotation(wid_niw):
     return wid_lab
 
 
-# def disp():
-#     IPython.display.display(wid_niw)
-#     IPython.display.display(wid_lab)
 
+def number_of_digits(x):
+    """Return number of digits to the left of the decimal point
+    """
+    return int(np.floor(np.log10(x))) + 1

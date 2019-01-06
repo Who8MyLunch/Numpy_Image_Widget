@@ -1,12 +1,12 @@
 
 from setuptools import setup, find_packages
 
-version = '2018.11.11'
+version = '2019.1.6'
 
 setup(
     name='numpy_image_widget',
     packages=find_packages(),
-    install_requires=['numpy', 'image_attendant', 'ipywidgets'],
+    install_requires=['numpy', 'image_attendant', 'ipyevents', 'ipywidgets'],
 
     version=version,
     author='Pierre V. Villeneuve',
