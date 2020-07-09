@@ -15,6 +15,7 @@ class NumpyImage(ipywidgets.Image):
     """
     def __init__(self, data=None, value=b'', url=None, format='jpeg',
                  compound=False,
+                 splash=True, splash_aspect_ratio=2,
                  quality=85, width_max=1000, auto_size=False):
         """Create new image widget instance
 
@@ -44,6 +45,10 @@ class NumpyImage(ipywidgets.Image):
             self.value = value
 
         self.format = format
+
+        if data is None and splash:
+            data = np.zeros(shape=(int(self.width_max/splash_aspect_ratio), self.width_max), dtype=np.uint8) + 220
+
         self.data = data
 
     @property
