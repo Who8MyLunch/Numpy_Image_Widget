@@ -15,7 +15,7 @@ class NumpyImage(ipywidgets.Image):
     """
     def __init__(self, data=None, value=b'', url=None, format='jpeg',
                  compound=False,
-                 quality=85, width_max=1000, auto_size=True):
+                 quality=85, width_max=1000, auto_size=False):
         """Create new image widget instance
 
         Provide one of the following as input:
@@ -58,6 +58,8 @@ class NumpyImage(ipywidgets.Image):
 
     @data.setter
     def data(self, new_data):
+        """Take in new image data, compress to PNG, send to image widget.
+        """
         if new_data is None:
             return
 
@@ -112,6 +114,13 @@ class NumpyImage(ipywidgets.Image):
     def height_display(self, H):
         self._set_width_height_display(H=H)
 
+    def resize(self, W=None, H=None):
+        """Coneinience function for adjusting image display size.
+
+        Call with no arguments to reset image to default size.
+        """
+        self._set_width_height_display(W=W, H=H)
+
     def _set_width_height_display(self, W=None, H=None):
         if not W and not H:
             W = self.width_data
@@ -121,7 +130,7 @@ class NumpyImage(ipywidgets.Image):
         elif not W:
             W = H/self.height_data*self.width_data
         else:
-            # Both H and W are defined, nothing to do
+            # Both H and W are defined, nothing to do up here.
             pass
 
         self._width_display = int(W)
