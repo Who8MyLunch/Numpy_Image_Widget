@@ -1,7 +1,7 @@
 
 from setuptools import setup, find_packages
 
-version = '2020.7.9'
+version = '2020.7.21'
 
 setup(
     name='numpy_image_widget',

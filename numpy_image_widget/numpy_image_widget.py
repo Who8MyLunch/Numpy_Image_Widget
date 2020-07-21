@@ -68,7 +68,7 @@ class NumpyImage(ipywidgets.Image):
         if new_data is None:
             return
 
-        self._data = np.asarray(new_data)
+        self._data = new_data
         self.value = ia.compress(self._data, self.format, quality=self.quality)
 
     @property
